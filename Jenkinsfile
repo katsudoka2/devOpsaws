@@ -29,5 +29,22 @@ pipeline {
    }
   }
   
+   stage('Build') {
+   parallel {
+    stage('Compile') {
+     agent {
+      docker {
+       image 'maven:3.6.0-jdk-8-alpine' // image to be mounted to compile code
+       args '-v /root/.m2/repository:/root/.m2/repository' // avoid downloading dependencies each time, they will be mounted locally at /root/.m2/repository
+       // to use the same node and workdir defined on top-level pipeline for all docker agents
+       reuseNode true
+      }
+     }
+     steps {
+      sh ' mvn clean compile'
+     }
+    }
+  
+  
   }
   }
