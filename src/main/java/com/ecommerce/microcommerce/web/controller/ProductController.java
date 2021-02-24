@@ -8,6 +8,9 @@ import java.util.List;
 
 @RestController
 public class ProductController {
+    public ProductController(ProductDao productDao) {
+        this.productDao = productDao;
+    }
 
     @Autowired
     private ProductDao productDao;
