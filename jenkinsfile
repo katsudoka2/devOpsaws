@@ -55,7 +55,7 @@ pipeline {
      }
      steps {
       sh ' mvn checkstyle:checkstyle'
-//plugin deprecated 
+//plugin deprecated - causes error
  //   step([$class: 'CheckStylePublisher',
        //canRunOnFailed: true,
    //    defaultEncoding: '',
