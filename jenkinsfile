@@ -70,9 +70,10 @@ pipeline {
    }
   }
   stage('Unit Tests') {
-   when {
-    anyOf { branch 'master'; branch 'develop' }
-   }
+ //check why it makes always jenkins skip the step
+ //  when {
+ //   anyOf { branch 'master'; branch 'develop' }
+//   }
    agent {
     docker {
      image 'maven:3.6.0-jdk-8-alpine'
@@ -90,9 +91,11 @@ pipeline {
    }
   }
   stage('Integration Tests') {
-   when {
-    anyOf { branch 'master'; branch 'develop' }
-   }
+  
+   //check why it makes always jenkins skip the step
+ //  when {
+//    anyOf { branch 'master'; branch 'develop' }
+//   }
    agent {
     docker {
      image 'maven:3.6.0-jdk-8-alpine'
