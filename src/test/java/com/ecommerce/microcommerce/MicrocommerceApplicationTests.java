@@ -53,6 +53,9 @@ class MicrocommerceApplicationTests {
 
 	@Test
 	void contextLoads()  throws Exception  {
+
+		System.out.println("first test empty");
+
 // given
 
 //when
