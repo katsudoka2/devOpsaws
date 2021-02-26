@@ -56,15 +56,15 @@ pipeline {
      steps {
       sh ' mvn checkstyle:checkstyle'
 //plugin deprecated - causes error
- //   step([$class: 'CheckStylePublisher',
-       //canRunOnFailed: true,
-   //    defaultEncoding: '',
-    //   healthy: '100',
+    step([$class: 'CheckStylePublisher',
+      canRunOnFailed: true,
+       defaultEncoding: '',
+     healthy: '100',
        
-   //    pattern: '**/target/checkstyle-result.xml',
-    //   unHealthy: '90',
-       //useStableBuildAsReference: true
-   //   ])
+       pattern: '**/target/checkstyle-result.xml',
+       unHealthy: '90',
+       useStableBuildAsReference: true
+     ])
      }
     }
    }
