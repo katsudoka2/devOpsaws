@@ -16,7 +16,7 @@ pipeline {
     to obtains this address : $ docker-machine ip
     Linux: set localhost to SONARQUBE_URL
   */
-  SONARQUBE_URL = "http://localhost"
+  SONARQUBE_URL = "http://172.24.0.3"
   SONARQUBE_PORT = "9000"
  }
  options {
@@ -170,7 +170,7 @@ pipeline {
      agent {
       docker {
        image 'maven:3.6.0-jdk-8-alpine'
-       args "-v /root/.m2/repository:/root/.m2/repository --net=devops2021_devops"
+       args "-v /root/.m2/repository:/root/.m2/repository --net=devbridge01"
        reuseNode true
       }
      }
