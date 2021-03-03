@@ -133,11 +133,10 @@ pipeline {
        reuseNode true
       }
      }
-     steps {
-      sh ' mvn pmd:pmd'
-      // using pmd plugin
-      step([$class: 'PmdPublisher', pattern: '**/target/pmd.xml'])
-     }
+     post {
+    always {
+     recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/target/pmd.xml')
+    }
     }
     stage('Findbugs') {
      agent {
@@ -170,7 +169,7 @@ pipeline {
      agent {
       docker {
        image 'maven:3.6.0-jdk-8-alpine'
-       args "-v /root/.m2/repository:/root/.m2/repository --net=devopsman  --name=sonar_analysis_agent"
+       args "-v /root/.m2/repository:/root/.m2/repository --net=devopsman  --name=sonar_analysis_agent" # added manual network devopsman, added jenkins and sonar containers to this network, so the agent of this stage can reach sonarqube container
        reuseNode true
       }
      }
