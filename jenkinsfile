@@ -64,7 +64,7 @@ pipeline {
       }
      }
      steps {
-      echo "hostname"
+      sh ' mvn findbugs:findbugs'
      }
 	 
 	   post {
