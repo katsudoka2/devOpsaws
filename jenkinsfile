@@ -137,7 +137,7 @@ pipeline {
     always {
      recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/target/pmd.xml')
     }
-    }
+    }}
     stage('Findbugs') {
      agent {
       docker {
