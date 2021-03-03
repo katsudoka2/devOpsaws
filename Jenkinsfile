@@ -45,16 +45,107 @@ pipeline {
       sh ' mvn clean compile'
      }
     }
-
+    stage('CheckStyle') {
+     agent {
+      docker {
+       image 'maven:3.6.0-jdk-8-alpine'
+       args '-v /root/.m2/repository:/root/.m2/repository'
+       reuseNode true
+      }
+     }
+     steps {
+      sh ' mvn checkstyle:checkstyle'
+//plugin deprecated - causes error
+ //   step([$class: 'CheckStylePublisher',
+ //     canRunOnFailed: true,
+ //      defaultEncoding: '',
+ //    healthy: '100',
+       
+ //      pattern: '**/target/checkstyle-result.xml',
+//       unHealthy: '90',
+ //      useStableBuildAsReference: true
+   //  ])
+     }
+    }
    }
   }
- 
-
+  stage('Unit Tests') {
+ //check why it makes always jenkins skip the step
+ //  when {
+ //   anyOf { branch 'master'; branch 'develop' }
+//   }
+   agent {
+    docker {
+     image 'maven:3.6.0-jdk-8-alpine'
+     args '-v /root/.m2/repository:/root/.m2/repository'
+     reuseNode true
+    }
+   }
+   steps {
+    sh 'mvn test'
+   }
+   post {
+    always {
+     junit 'target/surefire-reports/**/*.xml'
+    }
+   }
+  }
+  stage('Integration Tests') {
   
-
+   //check why it makes always jenkins skip the step
+ //  when {
+//    anyOf { branch 'master'; branch 'develop' }
+//   }
+   agent {
+    docker {
+     image 'maven:3.6.0-jdk-8-alpine'
+     args '-v /root/.m2/repository:/root/.m2/repository'
+     reuseNode true
+    }
+   }
+   steps {
+    sh 'mvn verify -Dsurefire.skip=true'
+   }
+   post {
+    always {
+     junit 'target/failsafe-reports/**/*.xml'
+    }
+    success {
+     stash(name: 'artifact', includes: 'target/*.jar')
+     stash(name: 'pom', includes: 'pom.xml')
+     // to add artifacts in jenkins pipeline tab (UI)
+     archiveArtifacts 'target/*.jar'
+    }
+   }
+  }
+  
+  
+  
+  
+  
     stage('Code Quality Analysis') {
    parallel {
+    stage('PMD') {
+	
+     agent {
+      docker {
+       image 'maven:3.6.0-jdk-8-alpine'
+       args '-v /root/.m2/repository:/root/.m2/repository'
+       reuseNode true
+      }
+     }
+	 
+     steps {
+      sh ' mvn pmd:pmd'  
+     }
+	 
+	   post {
+    always {
+     recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/target/pmd.xml')
+    }
+    }
    
+   }
     stage('Findbugs') {
      agent {
       docker {
@@ -65,6 +156,7 @@ pipeline {
      }
      steps {
       sh ' mvn findbugs:findbugs'
+
      }
 	 
 	   post {
@@ -73,12 +165,43 @@ pipeline {
     }
     }
     }
-    
-  
+    stage('JavaDoc') {
+     agent {
+      docker {
+       image 'maven:3.6.0-jdk-8-alpine'
+       args '-v /root/.m2/repository:/root/.m2/repository'
+       reuseNode true
+      }
+     }
+     steps {
+      sh ' mvn javadoc:javadoc'
+      step([$class: 'JavadocArchiver', javadocDir: './target/site/apidocs', keepAll: 'true'])
+     }
+    }
+    stage('SonarQube') {
+     agent {
+      docker {
+       image 'maven:3.6.0-jdk-8-alpine'
+//  added manual network devopsman, added jenkins and sonar containers to this network, so the agent of this stage can reach sonarqube container
+     
+	 args "-v /root/.m2/repository:/root/.m2/repository --net=devopsman  --name=sonar_analysis_agent" 
+	 
+       reuseNode true
+      }
+     }
+     steps {
+      sh " mvn sonar:sonar -Dsonar.host.url=$SONARQUBE_URL:$SONARQUBE_PORT"
+     }
+    }
 	
 	
    }
-
+   post {
+    always {
+     // using warning next gen plugin
+     recordIssues aggregatingResults: true, tools: [javaDoc(), checkStyle(pattern: '**/target/checkstyle-result.xml')]
+    }
+   }
   }
   
   
