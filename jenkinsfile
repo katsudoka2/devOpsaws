@@ -54,27 +54,7 @@ pipeline {
 
     stage('Code Quality Analysis') {
    parallel {
-    stage('PMD') {
-	
-     agent {
-      docker {
-       image 'maven:3.6.0-jdk-8-alpine'
-       args '-v /root/.m2/repository:/root/.m2/repository'
-       reuseNode true
-      }
-     }
-	 
-     steps {
-      sh ' mvn pmd:pmd'  
-     }
-	 
-	   post {
-    always {
-     recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/target/pmd.xml')
-    }
-    }
    
-   }
     stage('Findbugs') {
      agent {
       docker {
@@ -84,9 +64,7 @@ pipeline {
       }
      }
      steps {
-      sh ' mvn findbugs:findbugs'
-      // using findbugs plugin
-      findbugs pattern: '**/target/findbugsXml.xml'
+      echo "hostname"
      }
 	 
 	   post {
@@ -95,43 +73,12 @@ pipeline {
     }
     }
     }
-    stage('JavaDoc') {
-     agent {
-      docker {
-       image 'maven:3.6.0-jdk-8-alpine'
-       args '-v /root/.m2/repository:/root/.m2/repository'
-       reuseNode true
-      }
-     }
-     steps {
-      sh ' mvn javadoc:javadoc'
-      step([$class: 'JavadocArchiver', javadocDir: './target/site/apidocs', keepAll: 'true'])
-     }
-    }
-    stage('SonarQube') {
-     agent {
-      docker {
-       image 'maven:3.6.0-jdk-8-alpine'
-//  added manual network devopsman, added jenkins and sonar containers to this network, so the agent of this stage can reach sonarqube container
-     
-	 args "-v /root/.m2/repository:/root/.m2/repository --net=devopsman  --name=sonar_analysis_agent" 
-	 
-       reuseNode true
-      }
-     }
-     steps {
-      sh " mvn sonar:sonar -Dsonar.host.url=$SONARQUBE_URL:$SONARQUBE_PORT"
-     }
-    }
+    
+  
 	
 	
    }
-   post {
-    always {
-     // using warning next gen plugin
-     recordIssues aggregatingResults: true, tools: [javaDoc(), checkStyle(pattern: '**/target/checkstyle-result.xml')]
-    }
-   }
+
   }
   
   
