@@ -177,7 +177,10 @@ pipeline {
      agent {
       docker {
        image 'maven:3.6.0-jdk-8-alpine'
-       args "-v /root/.m2/repository:/root/.m2/repository --net=devopsman  --name=sonar_analysis_agent" # added manual network devopsman, added jenkins and sonar containers to this network, so the agent of this stage can reach sonarqube container
+//  added manual network devopsman, added jenkins and sonar containers to this network, so the agent of this stage can reach sonarqube container
+     
+	 args "-v /root/.m2/repository:/root/.m2/repository --net=devopsman  --name=sonar_analysis_agent" 
+	 
        reuseNode true
       }
      }
@@ -185,6 +188,8 @@ pipeline {
       sh " mvn sonar:sonar -Dsonar.host.url=$SONARQUBE_URL:$SONARQUBE_PORT"
      }
     }
+	
+	
    }
    post {
     always {
