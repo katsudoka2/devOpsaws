@@ -6,7 +6,7 @@ pipeline {
   // This can be http or https
  // NEXUS_PROTOCOL = "http"
   // Where your Nexus is running. In my case:
- // NEXUS_URL = "ec2-52-212-29-159.eu-west-1.compute.amazonaws.com:8081"
+ // NEXUS_URL = "192.168.0.30:1081"
   // Repository where we will upload the artifact
  // NEXUS_REPOSITORY = "maven-snapshots"
   // Jenkins credential id to authenticate to Nexus OSS
@@ -184,7 +184,7 @@ pipeline {
        image 'maven:3.6.0-jdk-8-alpine'
 //  added manual network devopsman, added jenkins and sonar containers to this network, so the agent of this stage can reach sonarqube container
      
-	 args "-v /root/.m2/repository:/root/.m2/repository --net=devopsman  --name=sonar_analysis_agent" 
+	 args "-v /root/.m2/repository:/root/.m2/repository --net=devopsman " 
 	 
        reuseNode true
       }
@@ -204,7 +204,54 @@ pipeline {
    }
   }
   
-  
+   stage('Deploy Artifact To Nexus') {
+   when {
+    branch 'master'
+   }
+   steps {
+    script {
+     unstash 'pom'
+     unstash 'artifact'
+     // Read POM xml file using 'readMavenPom' step , this step 'readMavenPom' is included in: https://plugins.jenkins.io/pipeline-utility-steps
+     pom = readMavenPom file: "pom.xml";
+     // Find built artifact under target folder
+     filesByGlob = findFiles(glob: "target/*.${pom.packaging}");
+     // Print some info from the artifact found
+     echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
+     // Extract the path from the File found
+     artifactPath = filesByGlob[0].path;
+     // Assign to a boolean response verifying If the artifact name exists
+     artifactExists = fileExists artifactPath;
+     if (artifactExists) {
+      nexusArtifactUploader(
+       nexusVersion: NEXUS_VERSION,
+       protocol: NEXUS_PROTOCOL,
+       nexusUrl: NEXUS_URL,
+       groupId: pom.groupId,
+       version: pom.version,
+       repository: NEXUS_REPOSITORY,
+       credentialsId: NEXUS_CREDENTIAL_ID,
+       artifacts: [
+        // Artifact generated such as .jar, .ear and .war files.
+        [artifactId: pom.artifactId,
+         classifier: '',
+         file: artifactPath,
+         type: pom.packaging
+        ],
+        // Lets upload the pom.xml file for additional information for Transitive dependencies
+        [artifactId: pom.artifactId,
+         classifier: '',
+         file: "pom.xml",
+         type: "pom"
+        ]
+       ]
+      )
+     } else {
+      error "*** File: ${artifactPath}, could not be found";
+     }
+    }
+   }
+  }
   
   
   
