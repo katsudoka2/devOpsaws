@@ -46,6 +46,11 @@ pipeline {
      }
     }
     stage('CheckStyle') {
+	
+		   when {
+    branch 'master'
+   }
+   
      agent {
       docker {
        image 'maven:3.6.0-jdk-8-alpine'
@@ -74,6 +79,12 @@ pipeline {
  //  when {
  //   anyOf { branch 'master'; branch 'develop' }
 //   }
+
+
+	   when {
+    branch 'master'
+   }
+   
    agent {
     docker {
      image 'maven:3.6.0-jdk-8-alpine'
@@ -91,6 +102,11 @@ pipeline {
    }
   }
   stage('Integration Tests') {
+  
+  	   when {
+    branch 'master'
+   }
+   
   
    //check why it makes always jenkins skip the step
  //  when {
@@ -124,6 +140,10 @@ pipeline {
   
   
     stage('Code Quality Analysis') {
+		   when {
+    branch 'master'
+   }
+   
    parallel {
     stage('PMD') {
 	
@@ -147,6 +167,9 @@ pipeline {
    
    }
     stage('Findbugs') {
+	
+	
+   
      agent {
       docker {
        image 'maven:3.6.0-jdk-8-alpine'
@@ -166,6 +189,7 @@ pipeline {
     }
     }
     stage('JavaDoc') {
+
      agent {
       docker {
        image 'maven:3.6.0-jdk-8-alpine'
@@ -179,6 +203,8 @@ pipeline {
      }
     }
     stage('SonarQube') {
+
+	
      agent {
       docker {
        image 'maven:3.6.0-jdk-8-alpine'
@@ -205,9 +231,9 @@ pipeline {
   }
   
    stage('Deploy Artifact To Nexus') {
-   when {
-    branch 'master'
-   }
+ //  when {
+ //   branch 'master'
+ //  }
    steps {
     script {
      unstash 'pom'
