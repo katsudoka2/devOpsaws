@@ -43,8 +43,12 @@ pipeline {
      }
      steps {
       sh ' mvn clean compile'
+	  sh 'mvn package -DskipTests=true'
      }
     }
+	
+	
+	
     stage('CheckStyle') {
 	
 		   when {
