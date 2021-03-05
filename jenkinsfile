@@ -10,7 +10,7 @@ pipeline {
   // Repository where we will upload the artifact
   NEXUS_REPOSITORY = "maven-nexus-repo"
   // Jenkins credential id to authenticate to Nexus OSS
-//  NEXUS_CREDENTIAL_ID = "nexus-user-credentials"
+  NEXUS_CREDENTIAL_ID = "nexus-user-credentials"
   /* 
     Windows: set the ip address of docker host. In my case 192.168.99.100.
     to obtains this address : $ docker-machine ip
