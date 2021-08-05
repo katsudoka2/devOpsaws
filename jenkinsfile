@@ -1,3 +1,4 @@
+
 pipeline {
  agent any
  environment {
@@ -48,47 +49,9 @@ pipeline {
     }
 	
 	
-	
-    stage('CheckStyle') {
-	
-		   when {
-    branch 'master'
-   }
-   
-     agent {
-      docker {
-       image 'maven:3.6.0-jdk-8-alpine'
-       args '-v /root/.m2/repository:/root/.m2/repository'
-       reuseNode true
-      }
-     }
-     steps {
-      sh ' mvn checkstyle:checkstyle'
-//plugin deprecated - causes error
- //   step([$class: 'CheckStylePublisher',
- //     canRunOnFailed: true,
- //      defaultEncoding: '',
- //    healthy: '100',
-       
- //      pattern: '**/target/checkstyle-result.xml',
-//       unHealthy: '90',
- //      useStableBuildAsReference: true
-   //  ])
-     }
-    }
-   }
-  }
   stage('Unit Tests') {
- //check why it makes always jenkins skip the step
- //  when {
- //   anyOf { branch 'master'; branch 'develop' }
-//   }
 
 
-	   when {
-    branch 'master'
-   }
-   
    agent {
     docker {
      image 'maven:3.6.0-jdk-8-alpine'
@@ -107,15 +70,12 @@ pipeline {
   }
   stage('Integration Tests') {
   
-  	   when {
-    branch 'master'
-   }
+  //	   when {
+  //  branch 'master'
+  // }
    
   
-   //check why it makes always jenkins skip the step
- //  when {
-//    anyOf { branch 'master'; branch 'develop' }
-//   }
+
    agent {
     docker {
      image 'maven:3.6.0-jdk-8-alpine'
@@ -144,54 +104,11 @@ pipeline {
   
   
     stage('Code Quality Analysis') {
-		   when {
-    branch 'master'
-   }
+
    
    parallel {
-    stage('PMD') {
-	
-     agent {
-      docker {
-       image 'maven:3.6.0-jdk-8-alpine'
-       args '-v /root/.m2/repository:/root/.m2/repository'
-       reuseNode true
-      }
-     }
-	 
-     steps {
-      sh ' mvn pmd:pmd'  
-     }
-	 
-	   post {
-    always {
-     recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/target/pmd.xml')
-    }
-    }
    
-   }
-    stage('Findbugs') {
-	
-	
-   
-     agent {
-      docker {
-       image 'maven:3.6.0-jdk-8-alpine'
-       args '-v /root/.m2/repository:/root/.m2/repository'
-       reuseNode true
-      }
-     }
-     steps {
-      sh ' mvn findbugs:findbugs'
 
-     }
-	 
-	   post {
-    always {
-     recordIssues enabledForFailure: true, tool: findBugs(pattern: '**/target/findbugsXml.xml')
-    }
-    }
-    }
     stage('JavaDoc') {
 
      agent {
@@ -260,7 +177,7 @@ pipeline {
      if (artifactExists) {
 	 
 	 
-	 // le upload se fait ici=================>
+	 //le upload se fait ici
 	 
       nexusArtifactUploader(
        nexusVersion: NEXUS_VERSION,
@@ -293,10 +210,7 @@ pipeline {
 	   
 	   
       )
-	  
-	  
-	  
-	  
+  
 	  
      } else {
       error "*** File: ${artifactPath}, could not be found";
@@ -305,8 +219,6 @@ pipeline {
    }
   }
   
-  
-  
-  
+ 
   }
   }
