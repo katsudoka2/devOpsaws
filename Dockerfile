@@ -14,6 +14,8 @@ RUN yum update -y && \
 
 ENV JAVA_HOME /usr/lib/jvm/java
 
+CMD ["pwd"]
+
 # copy WAR into image
 COPY microcommerce-0.0.1-SNAPSHOT.jar /microcommerce.jar 
 
