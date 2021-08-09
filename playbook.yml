@@ -1,4 +1,4 @@
-- hosts: localhost
+- hosts: preprod
   tasks:
 
   - name: Deploy the application
