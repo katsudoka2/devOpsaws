@@ -2,6 +2,7 @@
 pipeline {
  agent any
  environment {
+  registry = "narjess6/devops"
   // This can be nexus3 or nexus2
   NEXUS_VERSION = "nexus3"
   // This can be http or https
@@ -206,6 +207,38 @@ pipeline {
     }
    }
   }
+  
+ 
+ stage('Publish Docker image in dockerhub') {
+            environment {
+                registryCredential = 'dockerhub'
+            }
+            steps{
+                script {
+                    def appimage = docker.build registry + ":$BUILD_NUMBER"
+                    docker.withRegistry( '', registryCredential ) {
+                        appimage.push()
+                        appimage.push('latest')
+                    }
+                }
+            }
+        } 
+  
+  
+  
+   stage ('Deploy to Preprod') {
+            steps {
+                script{
+                    def image_id = registry + ":$BUILD_NUMBER"
+                    sh "ansible-playbook  playbook.yml --extra-vars \"image_id=${image_id}\""
+                }
+            }
+        }
+  
+  
+  
+  
+  
   
  
   }
