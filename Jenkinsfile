@@ -209,20 +209,20 @@ pipeline {
   }
   
  
- stage('Publish Docker image in dockerhub') {
-            environment {
-                registryCredential = 'dockerhub'
-            }
-            steps{
-                script {
-                    def appimage = docker.build registry + ":$BUILD_NUMBER"
-                    docker.withRegistry( '', registryCredential ) {
-                        appimage.push()
-                        appimage.push('latest')
-                    }
-                }
-            }
-        } 
+ //stage('Publish Docker image in dockerhub') {
+ //           environment {
+ //               registryCredential = 'dockerhub'
+ //           }
+ //           steps{
+ //              script {
+ //                   def appimage = docker.build registry + ":$BUILD_NUMBER"
+ //                   docker.withRegistry( '', registryCredential ) {
+ //                       appimage.push()
+ //                       appimage.push('latest')
+ //                   }
+ //               }
+ //           }
+ //       } 
   
   
   
