@@ -4,6 +4,9 @@ kind: Deployment
 metadata:
   name: ecommerce-deployment1
 spec:
+  selector:
+    matchLabels:
+      app: ecommerce
   replicas: 1
   template:
     metadata:
