@@ -17,7 +17,7 @@ ENV JAVA_HOME /usr/lib/jvm/java
 
 
 # copy WAR into image
-COPY  microcommerce-0.0.1-SNAPSHOT.jar /microcommerce.jar 
+COPY  target/microcommerce-0.0.1-SNAPSHOT.jar /microcommerce.jar 
 
 EXPOSE 9090
 
