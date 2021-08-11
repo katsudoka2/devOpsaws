@@ -142,6 +142,8 @@ pipeline {
    }
   }
   
+  }}
+  
    stage('Deploy Artifact To Nexus') {
 
    steps {
@@ -210,44 +212,6 @@ pipeline {
   
  
   
-pipeline {
- agent any
- environment {
-  registry = "narjess6/devops"
-  
-  }
-  options {
-  skipDefaultCheckout()
- }
-stages {
-
- stage('Checkout Source') {
-      steps {
-        git url:'https://github.com/Narjesse/devOpsaws.git', branch:'main'
-      }
-    }
-  
- stage('Build') {
-
-   
-     agent {
-      docker {
-       image 'maven:3.6.0-jdk-8-alpine'
-       args '-v /root/.m2/repository:/root/.m2/repository'
-       // to use the same node and workdir defined on top-level pipeline for all docker agents
-       reuseNode true
-      }
-     }
-     steps {
-         
-    
-      sh ' mvn clean compile'
-	  sh 'mvn package -DskipTests=true'
-
-     }
-    }
-	
-
 
 	
 stage('Publish docker image to dockerhub with our app updated') {
@@ -283,18 +247,6 @@ stage('Publish docker image to dockerhub with our app updated') {
  
  }
  
-}
-  
-  
-  
-  
-  
-  
+
  
-  }
-  }
-  
-  
-  
-  }
   }
