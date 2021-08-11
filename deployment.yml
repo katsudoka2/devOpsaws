@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: ecommerce
-        image: narjess6/devops:7.1
+        image: narjess6/devops:latest
         ports:
         - containerPort: 9090
 ---
