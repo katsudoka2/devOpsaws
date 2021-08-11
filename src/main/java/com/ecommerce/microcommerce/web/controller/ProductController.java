@@ -20,7 +20,7 @@ public class ProductController {
             return productDao.findAll();
         }
 
-    @GetMapping(value = "/products/{id}")
+    @GetMapping(value = "/product/{id}")
     public Product afficherUnProduit(@PathVariable int id) {
 
         return productDao.findById(id);
