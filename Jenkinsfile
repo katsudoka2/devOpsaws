@@ -209,31 +209,81 @@ pipeline {
   }
   
  
- //stage('Publish Docker image in dockerhub') {
- //           environment {
- //               registryCredential = 'dockerhub'
- //           }
- //           steps{
- //              script {
- //                   def appimage = docker.build registry + ":$BUILD_NUMBER"
- //                   docker.withRegistry( '', registryCredential ) {
- //                       appimage.push()
- //                       appimage.push('latest')
- //                   }
- //               }
- //           }
- //       } 
   
+pipeline {
+ agent any
+ environment {
+  registry = "narjess6/devops"
   
+  }
+  options {
+  skipDefaultCheckout()
+ }
+stages {
+
+ stage('Checkout Source') {
+      steps {
+        git url:'https://github.com/Narjesse/devOpsaws.git', branch:'main'
+      }
+    }
   
-   stage ('Deploy to Preprod') {
-            steps {
-                script{
-                    def image_id = registry + ":$BUILD_NUMBER"
-                    sh "ansible-playbook  playbook.yml --extra-vars \"image_id=${image_id}\""
+ stage('Build') {
+
+   
+     agent {
+      docker {
+       image 'maven:3.6.0-jdk-8-alpine'
+       args '-v /root/.m2/repository:/root/.m2/repository'
+       // to use the same node and workdir defined on top-level pipeline for all docker agents
+       reuseNode true
+      }
+     }
+     steps {
+         
+    
+      sh ' mvn clean compile'
+	  sh 'mvn package -DskipTests=true'
+
+     }
+    }
+	
+
+
+	
+stage('Publish docker image to dockerhub with our app updated') {
+            environment {
+                registryCredential = 'dockerhub'
+            }
+            steps{
+                script {
+                    sh 'pwd'
+                    sh 'ls -l'
+                    sh 'cd target'
+                    sh 'ls -l'
+                    def appimage = docker.build registry + ":$BUILD_NUMBER"
+                    docker.withRegistry( '', registryCredential ) {
+                        appimage.push()
+                        appimage.push('latest')
+                    }
                 }
             }
         }
+		
+
+    stage('Deploy App') {
+      steps {
+        script {
+          kubernetesDeploy(configs: "deployment.yml", kubeconfigId: "kubecreds9999")
+        }
+      }
+    }
+
+
+
+ 
+ }
+ 
+}
   
   
   
