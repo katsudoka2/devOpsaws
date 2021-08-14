@@ -101,6 +101,41 @@
 	<artifactId>maven-checkstyle-plugin</artifactId>
 	<version>3.0.0</version>
 </plugin>
+
+
+<plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>build-helper-maven-plugin</artifactId>
+      <version>3.0.0</version>
+      <executions>
+        <execution>
+          <id>regex-property</id>
+          <goals>
+            <goal>regex-property</goal>
+          </goals>
+          <configuration>
+            <!-- 
+              This property will have short Git commit id. 
+            -->
+            <name>short-git-commit-id</name>
+            <!-- 
+              Jenkins Git Plugin sets GIT_COMMIT environment
+              variable which is 40 characters long SHA1 value.
+            -->
+            <value>${GIT_COMMIT}</value>
+            <!-- 
+              To get the first 6 characters of Git commit id, we 
+              cut last 40-6=34 characters off. 
+            --> 
+            <regex>.{34}$</regex>
+            <replacement></replacement>
+            <failIfNoMatch>true</failIfNoMatch>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+	
+	
 		</plugins>
 	</build>
 
