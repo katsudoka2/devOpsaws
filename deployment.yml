@@ -2,36 +2,119 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ecommerce
+  name: employeeapi
 spec:
   selector:
     matchLabels:
-      app: ecommerce
+      app: employee-api
+      tier: api
+      track: stable
   replicas: 1
   template:
     metadata:
       labels:
-        app: ecommerce
+        app: employee-api
+        tier: api
+        track: stable
     spec:
       containers:
-      - name: ecommerce
-        image: narjess6/devops:latest
+        - name: employee-api
+          image: "narjess6/employees-api:1.0"
+          ports:
+          -  containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: employee-api
+spec:
+  selector:
+    app: employee-api
+    tier: api
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employee-cli
+spec:
+  selector:
+    matchLabels:
+      app: employeecli
+      tier: employee-cli
+      track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: employeecli
+        tier: employee-cli
+        track: stable
+    spec:
+      containers:
+      - name: employee-cli
+        image: "narjess6/employees-client:3.2"
         ports:
-        - containerPort: 9090
+        - containerPort: 8089
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: ecommerce
-  labels:
-    app: ecommerce
+  name: employee-cli
 spec:
-  type: LoadBalancer
-  ports:
-  - name: http
-    port: 9090
-    protocol: TCP
-    targetPort: 9090
-    nodePort: 30090
   selector:
-    app: ecommerce
+    app: employeecli
+    tier: employee-cli
+  ports:
+  - protocol: "TCP"
+    port: 8089
+    targetPort: 8089
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apisql
+spec:
+  selector:
+    matchLabels:
+      app: employee-sql
+      tier: sql
+      track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: employee-sql
+        tier: sql
+        track: stable
+    spec:
+      containers:
+        - name: employee-sql
+          image: "narjess6/employees-sql:1.0"
+          ports:
+            - name: sql
+              containerPort: 5432
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: employee-sql
+spec:
+  selector:
+    app: employee-sql
+    tier: sql
+  ports:
+  - protocol: TCP
+    port: 5432
+   targetPort: 5432
